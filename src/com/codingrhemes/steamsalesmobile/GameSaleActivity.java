@@ -49,7 +49,7 @@ import java.util.Locale;
 
 public class GameSaleActivity extends FragmentActivity implements ActionBar.TabListener {
 
-    private final static String URL_API = "http://steam-sales-api.aws.af.cm/";
+    private final static String URL_API = "http://steam-sales.codingrhemes.com/";
     // making that fragment a singleton to reload the pictures from an other class!!
     public static GamesFragment gamesFragment;
     private static DealOfTheDayFragment dailyDealFragment;
@@ -276,7 +276,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                 try {
                     JSONObject jsonObject = new JSONObject(JSON_From_API);
                     pGame = JSON.ParseDealOfTheDayJSONFromAPI(jsonObject);
-                    pGame.setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(pGame.getHeader_image()));
+                    pGame.setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(pGame.getLarge_capsule_img()));
                 } catch (Exception e) {
                     Log.d("ReadSteamJSONFeed", e.getLocalizedMessage());
 
