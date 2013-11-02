@@ -89,7 +89,7 @@ public class JSON {
                 agame.setSmall_capsule_img(gameObject.optString("small_capsule_image"));
                 agame.setName(gameObject.optString("name"));
                 agame.setId(gameObject.optString("id"));
-                new DownloadPictureTask(((Game) agame)).execute(agame.getSmall_capsule_img());
+
                 lstGames.add(agame);
             } catch (JSONException e) {
                 // Failed to parse it :(.
@@ -97,30 +97,6 @@ public class JSON {
             }
         }
         return lstGames;
-    }
-
-
-    public static class DownloadPictureTask extends AsyncTask<String, Void, Bitmap> {
-        Game pGame;
-
-        public DownloadPictureTask(Game game) {
-            pGame = game;
-
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            // Download that picture!
-            return HttpThumbnails.readPictureFromTheWeb(params[0].toString());
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            pGame.setHeader_bitmap(bitmap);
-            // We can do the lazy way as we made gamesFragment a singleton!!
-            GameSaleActivity.gamesFragment.reloadList();
-        }
-
     }
 
     public static Game ParseDealOfTheDayJSONFromAPI(JSONObject validObject) {

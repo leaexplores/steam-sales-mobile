@@ -386,11 +386,6 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             }
         }
 
-
-
-
-
-
         public static class DataListLoader extends AsyncTaskLoader<List<Game>> {
 
             List<Game> mGames;
@@ -409,25 +404,20 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     JSONObject jsonObject = new JSONObject(JSON_From_API);
                     lstGames = JSON.ParseJSONFromAPI(jsonObject);
 
+                    for (int iCpt = 0; iCpt < lstGames.size(); iCpt++)
+                    {
+                        lstGames.get(iCpt).setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(lstGames.get(iCpt).getSmall_capsule_img()));
+                    }
+
                 } catch (Exception e) {
                     Log.d("ReadSteamJSONFeed", e.getLocalizedMessage());
 
                     // TODO GERER CAS FAIL LOAD NETWORK
-                    lstGames = new ArrayList<Game>(3);
+                    lstGames = new ArrayList<Game>(1);
                     Game a = new Game();
-                    Game b = new Game();
-                    Game c = new Game();
-                    a.setName("Borderlands 1");
-                    b.setName("Counter-Strike GO");
-                    c.setName("Simcity 2014");
-                    a.setFinal_price("5.00$");
-                    b.setFinal_price("5.00$");
-                    c.setFinal_price("5.00$");
-
+                    a.setName("I was not able to load games from the steam api. :(");
+                    a.setFinal_price("0.00$");
                     lstGames.add(a);
-                    lstGames.add(b);
-                    lstGames.add(c);
-
                 }
 
 
