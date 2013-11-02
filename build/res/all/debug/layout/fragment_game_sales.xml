@@ -1,0 +1,54 @@
+<!--
+
+Steam Sales Mobile - Android application to keep track of the steam sales.
+        Copyright (C) 2013  Mathieu Rhéaume <mathieu@codingrhemes.com>
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".Sales$DummySectionFragment"
+    >
+   <ImageView
+        android:id="@+id/picture_item"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="6dip"
+        android:contentDescription="Application picture from steam store"
+         />
+
+    <TextView
+        android:id="@+id/text_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/picture_item"
+        android:contentDescription="Sale item from steam store"
+        android:gravity="center_vertical"
+        android:textSize="16sp" />
+
+        <TextView
+        android:id="@+id/price_item"
+        android:contentDescription="Sale price for item from steam store"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+      android:layout_alignParentBottom="true"
+      
+        android:textSize="12sp" />
+</RelativeLayout><!-- From: file:/C:/Users/Mathieu/Documents/Android/SteamSalesMobileBkp.tar/SteamSalesMobileBkp/SteamSalesMobile/res/layout/fragment_game_sales.xml -->

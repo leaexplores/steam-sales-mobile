@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+Steam Sales Mobile - Android application to keep track of the steam sales.
+    Copyright (C) 2013  Mathieu Rhéaume <mathieu@codingrhemes.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+-->
+<resources>
+    <string name="app_name">Steam Sales Mobile</string>
+    <string name="action_about">About</string>
+    <string name="title_section1">Daily Deal</string>
+    <string name="title_section2">Sales</string>
+    <string name="title_section3">Section 3</string>
+    <string name="action_reload">Reload</string>
+    <string name="about_application"><![CDATA[Steam sales mobile\n\nThis application was made to keep track of the sales on the steam website.\n\nCopyright © 2013  Mathieu Rhéaume <mathieu@codingrhemes.com>\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see <http://www.gnu.org/licenses/>.]]></string>
+</resources>

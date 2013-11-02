@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+Steam Sales Mobile - Android application to keep track of the steam sales.
+        Copyright (C) 2013  Mathieu Rhéaume <mathieu@codingrhemes.com>
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:text="@string/about_application"/>
+
+</LinearLayout><!-- From: file:/C:/Users/Mathieu/Documents/Android/SteamSalesMobileBkp.tar/SteamSalesMobileBkp/SteamSalesMobile/res/layout/aboutactivity.xml -->
