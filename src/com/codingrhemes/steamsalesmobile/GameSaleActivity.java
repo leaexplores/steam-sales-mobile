@@ -276,7 +276,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                 try {
                     JSONObject jsonObject = new JSONObject(JSON_From_API);
                     pGame = JSON.ParseDealOfTheDayJSONFromAPI(jsonObject);
-                    pGame.setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(pGame.getLarge_capsule_img()));
+                    pGame.setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(pGame.getHeader_image()));
                 } catch (Exception e) {
                     Log.d("ReadSteamJSONFeed", e.getLocalizedMessage());
 
