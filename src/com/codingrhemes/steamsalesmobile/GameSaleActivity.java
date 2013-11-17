@@ -74,6 +74,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gamesaleactivity);
 
+
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -82,6 +83,15 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         // primary sections of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(
                 getSupportFragmentManager());
+
+        if (savedInstanceState == null) {
+        dailyDealFragment = new DealOfTheDayFragment();
+        gamesFragment = new GamesFragment();}
+        else
+        {
+            dailyDealFragment = (DealOfTheDayFragment) getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.title_section1).toUpperCase(Locale.getDefault()));
+            gamesFragment = (GamesFragment) getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.title_section2).toUpperCase(Locale.getDefault()));
+        }
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -108,6 +118,8 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     .setText(mSectionsPagerAdapter.getPageTitle(i))
                     .setTabListener(this));
         }
+
+
     }
 
     @Override
@@ -168,6 +180,8 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
+
+
         }
 
         @Override
@@ -176,19 +190,12 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             // Return a DummySectionFragment (defined as a static inner class
             // below) with the page number as its lone argument.
 
-            Fragment fragment;
             switch (position) {
                 case 0: // Deal of the day
-                    fragment = new DealOfTheDayFragment();
-                    dailyDealFragment = (DealOfTheDayFragment) fragment;
-                    break;
+                    return dailyDealFragment;
                 default:
-                    fragment = new GamesFragment();
-                    gamesFragment = (GamesFragment)fragment;
-                    break;
+                    return gamesFragment;
             }
-            return fragment;
-
         }
 
         @Override
@@ -222,8 +229,6 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             // Prepare the loader.  Either re-connect with an existing one,
             // or start a new one.
             getLoaderManager().initLoader(0, null, this);
-
-
             pGameName = (TextView) view.findViewById(R.id.text_item_dealoftheday);
             pPriceTag = (TextView) view.findViewById(R.id.price_item_dealoftheday);
             pImgGame = (ImageView) view.findViewById(R.id.picture_item_dealoftheday);
@@ -413,14 +418,20 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     Log.d("ReadSteamJSONFeed", e.getLocalizedMessage());
 
                     // TODO GERER CAS FAIL LOAD NETWORK
-                    lstGames = new ArrayList<Game>(1);
-                    Game a = new Game();
-                    a.setName("I was not able to load games from the steam api. :(");
-                    a.setFinal_price("0.00$");
-                    lstGames.add(a);
+                    lstGames = getFailLoadGames();
                 }
 
 
+                return lstGames;
+            }
+
+            private List<Game> getFailLoadGames() {
+                List<Game> lstGames;
+                lstGames = new ArrayList<Game>(1);
+                Game a = new Game();
+                a.setName("I was not able to load games from the steam api. :(");
+                a.setFinal_price("0.00$");
+                lstGames.add(a);
                 return lstGames;
             }
 
@@ -431,6 +442,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     // don't need the result.
                     if (lstGames != null) {
                         onReleaseResources(lstGames);
+                        lstGames = getFailLoadGames();
                     }
                 }
                 List<Game> oldGames = lstGames;
@@ -473,10 +485,28 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     forceLoad();
                 }
             }
+
+
         }
 
         @Override
         public void onLoaderReset(Loader<List<Game>> arg0) {
         }
+
+
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's instance
+        getSupportFragmentManager().putFragment(outState, getString(R.string.title_section1).toUpperCase(Locale.getDefault()), dailyDealFragment);
+
+        //Save the fragment's instance
+        getSupportFragmentManager().putFragment(outState, getString(R.string.title_section2).toUpperCase(Locale.getDefault()), gamesFragment);
+
+
     }
 }
