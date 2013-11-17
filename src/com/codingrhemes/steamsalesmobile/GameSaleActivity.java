@@ -50,6 +50,9 @@ import java.util.Locale;
 public class GameSaleActivity extends FragmentActivity implements ActionBar.TabListener {
 
     private final static String URL_API = "http://steam-sales.codingrhemes.com/";
+    private final static String API_DAILY_DEAL = "dailydeal";
+    private final static String API_SPECIAL = "special";
+
     // making that fragment a singleton to reload the pictures from an other class!!
     public static GamesFragment gamesFragment;
     private static DealOfTheDayFragment dailyDealFragment;
@@ -277,7 +280,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                 Game pGame;
 
                 // Loading the data from the web yo.
-                String JSON_From_API = JSON.readJSONFeed(URL_API);
+                String JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_DAILY_DEAL));
                 try {
                     JSONObject jsonObject = new JSONObject(JSON_From_API);
                     pGame = JSON.ParseDealOfTheDayJSONFromAPI(jsonObject);
@@ -404,7 +407,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                 List<Game> lstGames;
 
                 // Loading the data from the web yo.
-                String JSON_From_API = JSON.readJSONFeed(URL_API);
+                String JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_SPECIAL));
                 try {
                     JSONObject jsonObject = new JSONObject(JSON_From_API);
                     lstGames = JSON.ParseJSONFromAPI(jsonObject);
