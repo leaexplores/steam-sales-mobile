@@ -96,6 +96,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             Bundle mostPopGames = new Bundle();
             mostPopGames.putBoolean("isMostPopular", true);
         mostPopularFragment = new GamesFragment();
+            // set them to the fragment
             mostPopularFragment.setArguments(mostPopGames);
         }
         else
