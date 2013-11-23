@@ -26,17 +26,19 @@ Steam Sales Mobile - Android application to keep track of the steam sales.
         android:id="@+id/picture_item_dealoftheday"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-       android:layout_centerHorizontal="true"
-       android:layout_centerVertical="true"
+        android:layout_above="@+id/text_item_dealoftheday"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:contentDescription="Application picture from steam store"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/ic_launcher"
+       />
 
     <TextView
         android:id="@+id/text_item_dealoftheday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="Sale item from steam store"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/price_item_dealoftheday"
         android:textSize="16sp" />
 
         <TextView
