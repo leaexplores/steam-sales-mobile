@@ -51,10 +51,12 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
     private final static String URL_API = "http://steam-sales.codingrhemes.com/";
     private final static String API_DAILY_DEAL = "dailydeal";
+    private final static String API_MOST_POPULAR = "mostpopular";
     private final static String API_SPECIAL = "special";
 
     // making that fragment a singleton to reload the pictures from an other class!!
-    public static GamesFragment gamesFragment;
+    private static GamesFragment gamesFragment;
+    private static GamesFragment mostPopularFragment;
     private static DealOfTheDayFragment dailyDealFragment;
 
     /**
@@ -89,11 +91,19 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
         if (savedInstanceState == null) {
         dailyDealFragment = new DealOfTheDayFragment();
-        gamesFragment = new GamesFragment();}
+        gamesFragment = new GamesFragment();
+            // Setting up bundle to keep values
+            Bundle mostPopGames = new Bundle();
+            mostPopGames.putBoolean("isMostPopular", true);
+        mostPopularFragment = new GamesFragment();
+            // set them to the fragment
+            mostPopularFragment.setArguments(mostPopGames);
+        }
         else
         {
             dailyDealFragment = (DealOfTheDayFragment) getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.title_section1).toUpperCase(Locale.getDefault()));
             gamesFragment = (GamesFragment) getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.title_section2).toUpperCase(Locale.getDefault()));
+            mostPopularFragment = (GamesFragment) getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.title_section3).toUpperCase(Locale.getDefault()));
         }
 
         // Set up the ViewPager with the sections adapter.
@@ -149,6 +159,9 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     case 1:
                         gamesFragment.reloadDataset();
                         break;
+                    case 2: // Most popular
+                        mostPopularFragment.reloadDataset();
+                        break;
                 }
 
                 return true;
@@ -196,6 +209,10 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             switch (position) {
                 case 0: // Deal of the day
                     return dailyDealFragment;
+                case 1: // Sales
+                    return gamesFragment;
+                case 2: // Most popular
+                    return mostPopularFragment;
                 default:
                     return gamesFragment;
             }
@@ -203,8 +220,8 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
         @Override
         public int getCount() {
-            // Show 2 total pages.
-            return 2;
+            // Show 3 total pages.
+            return 3;
         }
 
         @Override
@@ -215,6 +232,8 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     return getString(R.string.title_section1).toUpperCase(l);
                 case 1:
                     return getString(R.string.title_section2).toUpperCase(l);
+                case 2:
+                    return getString(R.string.title_section3).toUpperCase(l);
             }
             return null;
         }
@@ -339,10 +358,26 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
     public static class GamesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<Game>> {
         CustomArrayAdapter mAdapter;
+        Boolean isMostPopular = false;
+
+        public GamesFragment() {
+
+        }
+
+/// Tell if it's for the sales or most popular fragment
+        public Boolean getIsMostPopular() {
+            if (isMostPopular)
+                return true;
+            else
+                return false;
+        }
 
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
+
+            if (getArguments()!=null)
+                this.isMostPopular = getArguments().getBoolean("isMostPopular", false);
 
             setEmptyText("No Games loaded from Steam yet!");
 
@@ -369,6 +404,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             getLoaderManager().restartLoader(0,null,this);
         }
 
+
         @Override
         public void onListItemClick(ListView l, View v, int position, long id) {
             // Starting the webpage associated to the steam store...
@@ -380,7 +416,10 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
         @Override
         public Loader<List<Game>> onCreateLoader(int arg0, Bundle arg1) {
-            return new DataListLoader(getActivity());
+            if (getIsMostPopular())
+                return new DataListLoader(getActivity(), true);
+            else
+                return new DataListLoader(getActivity(), false);
         }
 
         @Override
@@ -397,20 +436,30 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         public static class DataListLoader extends AsyncTaskLoader<List<Game>> {
 
             List<Game> mGames;
-
-            public DataListLoader(Context context) {
+            Boolean mIsMostPopular;
+            public DataListLoader(Context context, Boolean isMostPopular) {
                 super(context);
+                mIsMostPopular = isMostPopular;
             }
 
             @Override
             public List<Game> loadInBackground() {
                 List<Game> lstGames;
+                String JSON_From_API;
 
                 // Loading the data from the web yo.
-                String JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_SPECIAL));
+                if (mIsMostPopular)
+                    JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_MOST_POPULAR));
+                else
+                    JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_SPECIAL));
+
+
                 try {
                     JSONObject jsonObject = new JSONObject(JSON_From_API);
-                    lstGames = JSON.ParseJSONFromAPI(jsonObject);
+                    if (mIsMostPopular)
+                        lstGames = JSON.ParseJSONFromAPI(jsonObject, true);
+                    else
+                        lstGames = JSON.ParseJSONFromAPI(jsonObject, false);
 
                     for (int iCpt = 0; iCpt < lstGames.size(); iCpt++)
                     {
@@ -506,10 +555,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
         //Save the fragment's instance
         getSupportFragmentManager().putFragment(outState, getString(R.string.title_section1).toUpperCase(Locale.getDefault()), dailyDealFragment);
-
-        //Save the fragment's instance
         getSupportFragmentManager().putFragment(outState, getString(R.string.title_section2).toUpperCase(Locale.getDefault()), gamesFragment);
-
-
+        getSupportFragmentManager().putFragment(outState, getString(R.string.title_section3).toUpperCase(Locale.getDefault()), mostPopularFragment);
     }
 }

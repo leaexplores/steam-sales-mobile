@@ -63,14 +63,17 @@ public class JSON {
         return stringBuilder.toString();
     }
 
-    public static List<Game> ParseJSONFromAPI(JSONObject validObject) {
+    public static List<Game> ParseJSONFromAPI(JSONObject validObject, boolean isMostPopular) {
         List<Game> lstGames = new ArrayList<Game>();
 
         JSONArray gamesInSale = null;
         JSONObject gameObject;
         Game agame;
         try {
-            gamesInSale = validObject.getJSONObject("specials").getJSONArray("items");
+            if (isMostPopular)
+                gamesInSale = validObject.getJSONObject("most_popular").getJSONArray("items");
+            else
+                gamesInSale = validObject.getJSONObject("specials").getJSONArray("items");
         } catch (JSONException e) {
             // Failed to parse it :(.
             Log.d("JSON.ParseJSONFromAPI", e.getMessage());
