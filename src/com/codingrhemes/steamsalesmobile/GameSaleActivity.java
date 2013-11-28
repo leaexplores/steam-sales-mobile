@@ -95,7 +95,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             // Setting up bundle to keep values
             Bundle mostPopGames = new Bundle();
             mostPopGames.putBoolean("isMostPopular", true);
-        mostPopularFragment = new GamesFragment();
+            mostPopularFragment = new GamesFragment();
             // set them to the fragment
             mostPopularFragment.setArguments(mostPopGames);
         }
@@ -305,7 +305,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     pGame = JSON.ParseDealOfTheDayJSONFromAPI(jsonObject);
                     pGame.setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(pGame.getHeader_image()));
                 } catch (Exception e) {
-                    Log.d("ReadSteamJSONFeed", e.getLocalizedMessage());
+                    Log.d("ReadSteamJSONFeed", "Couldn't load the daily deal!");
 
                     // TODO GERER CAS FAIL LOAD NETWORK
                     pGame = new Game();
@@ -360,10 +360,6 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         CustomArrayAdapter mAdapter;
         Boolean isMostPopular = false;
 
-        public GamesFragment() {
-
-        }
-
 /// Tell if it's for the sales or most popular fragment
         public Boolean getIsMostPopular() {
             if (isMostPopular)
@@ -372,25 +368,29 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                 return false;
         }
 
-        @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
 
             if (getArguments()!=null)
                 this.isMostPopular = getArguments().getBoolean("isMostPopular", false);
-
-            setEmptyText("No Games loaded from Steam yet!");
 
             // Create an empty adapter we will use to display the loaded data.
             mAdapter = new CustomArrayAdapter(getActivity());
             setListAdapter(mAdapter);
 
-            // Start out with a progress indicator.
-            setListShown(false);
-
             // Prepare the loader.  Either re-connect with an existing one,
             // or start a new one.
             getLoaderManager().initLoader(0, null, this);
+        }
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+
+            setEmptyText("No Games loaded from Steam yet!");
+
+            // Start out with a progress indicator.
+            setListShown(false);
         }
 
         public void reloadList() {
@@ -442,28 +442,28 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                 mIsMostPopular = isMostPopular;
             }
 
-            @Override
-            public List<Game> loadInBackground() {
-                List<Game> lstGames;
-                String JSON_From_API;
+                        @Override
+                        public List<Game> loadInBackground() {
+                        List<Game> lstGames;
+                        String JSON_From_API;
 
-                // Loading the data from the web yo.
-                if (mIsMostPopular)
-                    JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_MOST_POPULAR));
-                else
-                    JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_SPECIAL));
+                        // Loading the data from the web yo.
+                        if (mIsMostPopular)
+                            JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_MOST_POPULAR));
+                        else
+                            JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_SPECIAL));
 
 
-                try {
-                    JSONObject jsonObject = new JSONObject(JSON_From_API);
-                    if (mIsMostPopular)
-                        lstGames = JSON.ParseJSONFromAPI(jsonObject, true);
-                    else
-                        lstGames = JSON.ParseJSONFromAPI(jsonObject, false);
+                        try {
+                            JSONObject jsonObject = new JSONObject(JSON_From_API);
+                            if (mIsMostPopular)
+                                lstGames = JSON.ParseJSONFromAPI(jsonObject, true);
+                            else
+                                lstGames = JSON.ParseJSONFromAPI(jsonObject, false);
 
-                    for (int iCpt = 0; iCpt < lstGames.size(); iCpt++)
-                    {
-                        lstGames.get(iCpt).setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(lstGames.get(iCpt).getSmall_capsule_img()));
+                            for (int iCpt = 0; iCpt < lstGames.size(); iCpt++)
+                            {
+                                lstGames.get(iCpt).setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(lstGames.get(iCpt).getSmall_capsule_img()));
                     }
 
                 } catch (Exception e) {
@@ -544,10 +544,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         @Override
         public void onLoaderReset(Loader<List<Game>> arg0) {
         }
-
-
-    }
-
+}
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
