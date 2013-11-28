@@ -467,7 +467,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     }
 
                 } catch (Exception e) {
-                    Log.d("ReadSteamJSONFeed", e.getLocalizedMessage());
+                    Log.d("ReadSteamJSONFeed", "Couldn't load games from most popular or sales!!");
 
                     // TODO GERER CAS FAIL LOAD NETWORK
                     lstGames = getFailLoadGames();
