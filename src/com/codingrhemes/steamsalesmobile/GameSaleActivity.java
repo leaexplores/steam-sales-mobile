@@ -56,7 +56,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
     // making that fragment a singleton to reload the pictures from an other class!!
     private static GamesFragment gamesFragment;
-    private static GamesFragment mostPopularFragment;
+    private static MostPopularGamesFragment mostPopularFragment;
     private static DealOfTheDayFragment dailyDealFragment;
 
     /**
@@ -84,27 +84,23 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
+
+
+        if (savedInstanceState == null) {
+        // Setting up bundle to keep values
+            Bundle mostPopGames = new Bundle();
+            mostPopGames.putBoolean("isMostPopular", true);
+            dailyDealFragment = new DealOfTheDayFragment();
+            gamesFragment = new GamesFragment();
+            mostPopularFragment = new MostPopularGamesFragment();
+           // set them to the fragment
+            mostPopularFragment.setArguments(mostPopGames);
+        }
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(
                 getSupportFragmentManager());
-
-        if (savedInstanceState == null) {
-        dailyDealFragment = new DealOfTheDayFragment();
-        gamesFragment = new GamesFragment();
-            // Setting up bundle to keep values
-            Bundle mostPopGames = new Bundle();
-            mostPopGames.putBoolean("isMostPopular", true);
-            mostPopularFragment = new GamesFragment();
-            // set them to the fragment
-            mostPopularFragment.setArguments(mostPopGames);
-        }
-        else
-        {
-            dailyDealFragment = (DealOfTheDayFragment) getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.title_section1).toUpperCase(Locale.getDefault()));
-            gamesFragment = (GamesFragment) getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.title_section2).toUpperCase(Locale.getDefault()));
-            mostPopularFragment = (GamesFragment) getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.title_section3).toUpperCase(Locale.getDefault()));
-        }
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -356,6 +352,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
     }
 
+    //TODO: Refactor code to remove mostpopular logic
     public static class GamesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<Game>> {
         CustomArrayAdapter mAdapter;
         Boolean isMostPopular = false;
@@ -370,6 +367,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            this.setRetainInstance(true);
 
             if (getArguments()!=null)
                 this.isMostPopular = getArguments().getBoolean("isMostPopular", false);
@@ -546,13 +544,195 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         }
 }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    //TODO: Remove bundle as always most popular
+    public static class MostPopularGamesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<Game>> {
+        CustomArrayAdapter mAdapter;
+        Boolean isMostPopular = false;
 
-        //Save the fragment's instance
-        getSupportFragmentManager().putFragment(outState, getString(R.string.title_section1).toUpperCase(Locale.getDefault()), dailyDealFragment);
-        getSupportFragmentManager().putFragment(outState, getString(R.string.title_section2).toUpperCase(Locale.getDefault()), gamesFragment);
-        getSupportFragmentManager().putFragment(outState, getString(R.string.title_section3).toUpperCase(Locale.getDefault()), mostPopularFragment);
+        /// Tell if it's for the sales or most popular fragment
+        public Boolean getIsMostPopular() {
+            if (isMostPopular)
+                return true;
+            else
+                return false;
+        }
+
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            this.setRetainInstance(true);
+
+            if (getArguments()!=null)
+                this.isMostPopular = getArguments().getBoolean("isMostPopular", false);
+
+            // Create an empty adapter we will use to display the loaded data.
+            mAdapter = new CustomArrayAdapter(getActivity());
+            setListAdapter(mAdapter);
+
+            // Prepare the loader.  Either re-connect with an existing one,
+            // or start a new one.
+            getLoaderManager().initLoader(0, null, this);
+        }
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+
+            setEmptyText("No Games loaded from Steam yet!");
+
+            // Start out with a progress indicator.
+            setListShown(false);
+        }
+
+        public void reloadList() {
+            mAdapter.notifyDataSetChanged();
+        }
+
+        public void reloadDataset() {
+            // Start out with a progress indicator.
+            setListShown(false);
+            mAdapter.clear();
+            getLoaderManager().restartLoader(0,null,this);
+        }
+
+
+        @Override
+        public void onListItemClick(ListView l, View v, int position, long id) {
+            // Starting the webpage associated to the steam store...
+            Log.i("DataListFragment", "Link clicked: " + mAdapter.getItem(position).getAppUrl());
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(mAdapter.getItem(position).getAppUrl()));
+            startActivity(intent);
+        }
+
+        @Override
+        public Loader<List<Game>> onCreateLoader(int arg0, Bundle arg1) {
+            if (getIsMostPopular())
+                return new DataListLoader(getActivity(), true);
+            else
+                return new DataListLoader(getActivity(), false);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<List<Game>> arg0, List<Game> data) {
+            mAdapter.setData(data);
+            // The list should now be shown.
+            if (isResumed()) {
+                setListShown(true);
+            } else {
+                setListShownNoAnimation(true);
+            }
+        }
+
+        public static class DataListLoader extends AsyncTaskLoader<List<Game>> {
+
+            List<Game> mGames;
+            Boolean mIsMostPopular;
+            public DataListLoader(Context context, Boolean isMostPopular) {
+                super(context);
+                mIsMostPopular = isMostPopular;
+            }
+
+            @Override
+            public List<Game> loadInBackground() {
+                List<Game> lstGames;
+                String JSON_From_API;
+
+                // Loading the data from the web yo.
+                if (mIsMostPopular)
+                    JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_MOST_POPULAR));
+                else
+                    JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_SPECIAL));
+
+
+                try {
+                    JSONObject jsonObject = new JSONObject(JSON_From_API);
+                    if (mIsMostPopular)
+                        lstGames = JSON.ParseJSONFromAPI(jsonObject, true);
+                    else
+                        lstGames = JSON.ParseJSONFromAPI(jsonObject, false);
+
+                    for (int iCpt = 0; iCpt < lstGames.size(); iCpt++)
+                    {
+                        lstGames.get(iCpt).setHeader_bitmap(HttpThumbnails.readPictureFromTheWeb(lstGames.get(iCpt).getSmall_capsule_img()));
+                    }
+
+                } catch (Exception e) {
+                    Log.d("ReadSteamJSONFeed", "Couldn't load games from most popular or sales!!");
+
+                    // TODO GERER CAS FAIL LOAD NETWORK
+                    lstGames = getFailLoadGames();
+                }
+
+
+                return lstGames;
+            }
+
+            private List<Game> getFailLoadGames() {
+                List<Game> lstGames;
+                lstGames = new ArrayList<Game>(1);
+                Game a = new Game();
+                a.setName("I was not able to load games from the steam api. :(");
+                a.setFinal_price("0.00$");
+                lstGames.add(a);
+                return lstGames;
+            }
+
+            @Override
+            public void deliverResult(List<Game> lstGames) {
+                if (isReset()) {
+                    // An async query came in while the loader is stopped.  We
+                    // don't need the result.
+                    if (lstGames != null) {
+                        onReleaseResources(lstGames);
+                        lstGames = getFailLoadGames();
+                    }
+                }
+                List<Game> oldGames = lstGames;
+                mGames = lstGames;
+
+                if (isStarted()) {
+                    // If the Loader is currently started, we can immediately
+                    // deliver its results.
+                    super.deliverResult(lstGames);
+                }
+
+                // At this point we can release the resources associated with
+                // 'oldApps' if needed; now that the new result is delivered we
+                // know that it is no longer in use.
+                if (oldGames != null) {
+                    onReleaseResources(oldGames);
+                }
+            }
+
+            private void onReleaseResources(List<Game> oldGames) {
+                // TODO Auto-generated method stub
+
+            }
+
+            /**
+             * Handles a request to start the Loader.
+             */
+            @Override
+            protected void onStartLoading() {
+                if (mGames != null) {
+                    // If we currently have a result available, deliver it
+                    // immediately.
+                    deliverResult(mGames);
+                }
+
+
+                if (takeContentChanged() || mGames == null) {
+                    // If the data has changed since the last time it was loaded
+                    // or is not currently available, start a load.
+                    forceLoad();
+                }
+            }
+
+
+        }
+
+        @Override
+        public void onLoaderReset(Loader<List<Game>> arg0) {
+        }
     }
 }
