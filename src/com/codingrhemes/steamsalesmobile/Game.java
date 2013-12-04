@@ -26,6 +26,8 @@ public class Game {
     private final String STEAM_URL = "https://store.steampowered.com/app/";
 
     public String getId() {
+        if (id.equals(null))
+            return "0";
         return id;
     }
 

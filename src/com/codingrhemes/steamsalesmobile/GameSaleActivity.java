@@ -267,7 +267,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
         @Override
         public Loader<Game> onCreateLoader(int i, Bundle bundle) {
-            return new DataListLoader(getActivity());
+            return new DataListLoaderDOTD(getActivity());
         }
 
         @Override
@@ -283,11 +283,11 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         }
 
 
-        public static class DataListLoader extends AsyncTaskLoader<Game> {
+        public static class DataListLoaderDOTD extends AsyncTaskLoader<Game> {
 
             Game mGame;
 
-            public DataListLoader(Context context) {
+            public DataListLoaderDOTD(Context context) {
                 super(context);
             }
 
@@ -347,6 +347,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                     // If the data has changed since the last time it was loaded
                     // or is not currently available, start a load.
                     forceLoad();
+
                 }
             }
         }
@@ -395,21 +396,15 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         @Override
         public void onListItemClick(ListView l, View v, int position, long id) {
             // Starting the webpage associated to the steam store...
-           if (mAdapter.getItem(position).getAppUrl() != null) {
             Log.i("DataListFragment", "Link clicked: " + mAdapter.getItem(position).getAppUrl());
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(mAdapter.getItem(position).getAppUrl()));
             startActivity(intent);
-           }
-
-
         }
 
         @Override
         public Loader<List<Game>> onCreateLoader(int arg0, Bundle arg1) {
-            DataListLoader dat = new DataListLoader(getActivity());
-            dat.forceLoad();
-                return dat;
+                return new DataListLoader(getActivity());
         }
 
         @Override
