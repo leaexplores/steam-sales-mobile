@@ -39,7 +39,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -244,6 +243,8 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_deal_of_the_day, container, false);
 
+            this.setRetainInstance(true);
+
             // Prepare the loader.  Either re-connect with an existing one,
             // or start a new one.
             getLoaderManager().initLoader(0, null, this);
@@ -355,22 +356,10 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
     //TODO: Refactor code to remove mostpopular logic
     public static class GamesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<Game>> {
         CustomArrayAdapter mAdapter;
-        Boolean isMostPopular = false;
-
-/// Tell if it's for the sales or most popular fragment
-        public Boolean getIsMostPopular() {
-            if (isMostPopular)
-                return true;
-            else
-                return false;
-        }
 
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             this.setRetainInstance(true);
-
-            if (getArguments()!=null)
-                this.isMostPopular = getArguments().getBoolean("isMostPopular", false);
 
             // Create an empty adapter we will use to display the loaded data.
             mAdapter = new CustomArrayAdapter(getActivity());
@@ -378,7 +367,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
             // Prepare the loader.  Either re-connect with an existing one,
             // or start a new one.
-            getLoaderManager().initLoader(0, null, this);
+            getLoaderManager().initLoader(1, null, this);
         }
 
         @Override
@@ -388,7 +377,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             setEmptyText("No Games loaded from Steam yet!");
 
             // Start out with a progress indicator.
-            setListShown(false);
+            setListShown(true);
         }
 
         public void reloadList() {
@@ -399,25 +388,28 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             // Start out with a progress indicator.
             setListShown(false);
             mAdapter.clear();
-            getLoaderManager().restartLoader(0,null,this);
+            getLoaderManager().restartLoader(1,null,this);
         }
 
 
         @Override
         public void onListItemClick(ListView l, View v, int position, long id) {
             // Starting the webpage associated to the steam store...
+           if (mAdapter.getItem(position).getAppUrl() != null) {
             Log.i("DataListFragment", "Link clicked: " + mAdapter.getItem(position).getAppUrl());
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(mAdapter.getItem(position).getAppUrl()));
             startActivity(intent);
+           }
+
+
         }
 
         @Override
         public Loader<List<Game>> onCreateLoader(int arg0, Bundle arg1) {
-            if (getIsMostPopular())
-                return new DataListLoader(getActivity(), true);
-            else
-                return new DataListLoader(getActivity(), false);
+            DataListLoader dat = new DataListLoader(getActivity());
+            dat.forceLoad();
+                return dat;
         }
 
         @Override
@@ -434,10 +426,10 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
         public static class DataListLoader extends AsyncTaskLoader<List<Game>> {
 
             List<Game> mGames;
-            Boolean mIsMostPopular;
-            public DataListLoader(Context context, Boolean isMostPopular) {
+
+            public DataListLoader(Context context) {
                 super(context);
-                mIsMostPopular = isMostPopular;
+
             }
 
                         @Override
@@ -446,17 +438,11 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                         String JSON_From_API;
 
                         // Loading the data from the web yo.
-                        if (mIsMostPopular)
-                            JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_MOST_POPULAR));
-                        else
                             JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_SPECIAL));
 
 
                         try {
                             JSONObject jsonObject = new JSONObject(JSON_From_API);
-                            if (mIsMostPopular)
-                                lstGames = JSON.ParseJSONFromAPI(jsonObject, true);
-                            else
                                 lstGames = JSON.ParseJSONFromAPI(jsonObject, false);
 
                             for (int iCpt = 0; iCpt < lstGames.size(); iCpt++)
@@ -547,22 +533,12 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
     //TODO: Remove bundle as always most popular
     public static class MostPopularGamesFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<Game>> {
         CustomArrayAdapter mAdapter;
-        Boolean isMostPopular = false;
-
-        /// Tell if it's for the sales or most popular fragment
-        public Boolean getIsMostPopular() {
-            if (isMostPopular)
-                return true;
-            else
-                return false;
-        }
 
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             this.setRetainInstance(true);
 
-            if (getArguments()!=null)
-                this.isMostPopular = getArguments().getBoolean("isMostPopular", false);
+
 
             // Create an empty adapter we will use to display the loaded data.
             mAdapter = new CustomArrayAdapter(getActivity());
@@ -580,7 +556,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             setEmptyText("No Games loaded from Steam yet!");
 
             // Start out with a progress indicator.
-            setListShown(false);
+            setListShown(true);
         }
 
         public void reloadList() {
@@ -606,10 +582,7 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
 
         @Override
         public Loader<List<Game>> onCreateLoader(int arg0, Bundle arg1) {
-            if (getIsMostPopular())
-                return new DataListLoader(getActivity(), true);
-            else
-                return new DataListLoader(getActivity(), false);
+                return new DataListLoaderMostPopular(getActivity());
         }
 
         @Override
@@ -623,13 +596,12 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
             }
         }
 
-        public static class DataListLoader extends AsyncTaskLoader<List<Game>> {
+        public static class DataListLoaderMostPopular extends AsyncTaskLoader<List<Game>> {
 
             List<Game> mGames;
-            Boolean mIsMostPopular;
-            public DataListLoader(Context context, Boolean isMostPopular) {
+            public DataListLoaderMostPopular(Context context) {
                 super(context);
-                mIsMostPopular = isMostPopular;
+
             }
 
             @Override
@@ -638,18 +610,13 @@ public class GameSaleActivity extends FragmentActivity implements ActionBar.TabL
                 String JSON_From_API;
 
                 // Loading the data from the web yo.
-                if (mIsMostPopular)
                     JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_MOST_POPULAR));
-                else
-                    JSON_From_API = JSON.readJSONFeed(URL_API.concat(API_SPECIAL));
 
 
                 try {
                     JSONObject jsonObject = new JSONObject(JSON_From_API);
-                    if (mIsMostPopular)
                         lstGames = JSON.ParseJSONFromAPI(jsonObject, true);
-                    else
-                        lstGames = JSON.ParseJSONFromAPI(jsonObject, false);
+
 
                     for (int iCpt = 0; iCpt < lstGames.size(); iCpt++)
                     {
